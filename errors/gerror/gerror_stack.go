@@ -66,7 +66,9 @@ func name(fn *runtime.Func) string {
 	if fn == nil {
 		return "unknown"
 	}
-	return fn.Name()
+
+	fnName := fn.Name()
+	return fnName[strings.LastIndex(fnName, "/")+1:]
 }
 
 func callers() *stack {
