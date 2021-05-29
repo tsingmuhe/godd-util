@@ -8,13 +8,13 @@ import (
 
 const NIL_STR = "<nil>"
 
-type Error struct {
+type Exception struct {
 	msg   string
 	cause error
 	stack *stack
 }
 
-func (err *Error) Error() string {
+func (err *Exception) Error() string {
 	if err == nil {
 		return NIL_STR
 	}
@@ -29,21 +29,21 @@ func (err *Error) Error() string {
 	return errStr
 }
 
-func (err *Error) Msg() string {
+func (err *Exception) Msg() string {
 	if err == nil {
 		return NIL_STR
 	}
 	return err.msg
 }
 
-func (err *Error) Cause() error {
+func (err *Exception) Cause() error {
 	if err == nil {
 		return nil
 	}
 	return err.cause
 }
 
-func (err *Error) Stack() string {
+func (err *Exception) Stack() string {
 	if err == nil {
 		return NIL_STR
 	}
@@ -58,7 +58,7 @@ func (err *Error) Stack() string {
 
 	for loop.cause != nil {
 		buffer.WriteString("\nCaused by: ")
-		if e, ok := loop.cause.(*Error); ok {
+		if e, ok := loop.cause.(*Exception); ok {
 			loop = e
 			buffer.WriteString(loop.msg)
 			if loop.stack != nil {
@@ -78,7 +78,7 @@ func (err *Error) Stack() string {
 // %v, %s   : Print all the error string;
 // %-v, %-s : Print current level error string;
 // %+v, %+s : Print full stack error list;
-func (err *Error) Format(s fmt.State, verb rune) {
+func (err *Exception) Format(s fmt.State, verb rune) {
 	switch verb {
 	case 's', 'v':
 		switch {
@@ -93,6 +93,6 @@ func (err *Error) Format(s fmt.State, verb rune) {
 }
 
 // MarshalJSON implements the interface MarshalJSON for json.Marshal.
-func (err *Error) MarshalJSON() ([]byte, error) {
+func (err *Exception) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + err.Error() + `"`), nil
 }

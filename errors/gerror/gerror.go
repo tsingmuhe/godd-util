@@ -3,16 +3,16 @@ package gerror
 import "fmt"
 
 // New creates and returns an error which is formatted from given text.
-func New(msg string) error {
-	return &Error{
+func New(msg string) *Exception {
+	return &Exception{
 		stack: callers(),
 		msg:   msg,
 	}
 }
 
 // Newf returns an error that formats as the given format and args.
-func Newf(format string, args ...interface{}) error {
-	return &Error{
+func Newf(format string, args ...interface{}) *Exception {
+	return &Exception{
 		stack: callers(),
 		msg:   fmt.Sprintf(format, args...),
 	}
@@ -20,8 +20,8 @@ func Newf(format string, args ...interface{}) error {
 
 // Wrap wraps error with text.
 // It returns nil if given err is nil.
-func Wrap(err error, msg string) error {
-	return &Error{
+func Wrap(err error, msg string) *Exception {
+	return &Exception{
 		cause: err,
 		stack: callers(),
 		msg:   msg,
@@ -31,8 +31,8 @@ func Wrap(err error, msg string) error {
 // Wrapf returns an error annotating err with a stack trace
 // at the point Wrapf is called, and the format specifier.
 // It returns nil if given <err> is nil.
-func Wrapf(err error, format string, args ...interface{}) error {
-	return &Error{
+func Wrapf(err error, format string, args ...interface{}) *Exception {
+	return &Exception{
 		cause: err,
 		stack: callers(),
 		msg:   fmt.Sprintf(format, args...),
@@ -41,7 +41,7 @@ func Wrapf(err error, format string, args ...interface{}) error {
 
 func RootCause(err error) error {
 	for err != nil {
-		e, ok := err.(*Error)
+		e, ok := err.(*Exception)
 		if !ok {
 			break
 		}

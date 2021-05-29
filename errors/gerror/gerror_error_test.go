@@ -40,10 +40,8 @@ func Benchmark_Stack(b *testing.B) {
 	err = Wrap(err, "2")
 	err = Wrap(err, "3")
 
-	e, _ := err.(*Error)
-
 	for i := 0; i < b.N; i++ {
-		e.Stack()
+		err.Stack()
 	}
 }
 
@@ -52,10 +50,8 @@ func Benchmark_Error(b *testing.B) {
 	err = Wrap(err, "2")
 	err = Wrap(err, "3")
 
-	e, _ := err.(*Error)
-
 	for i := 0; i < b.N; i++ {
-		e.Error()
+		err.Error()
 	}
 }
 
@@ -117,7 +113,7 @@ func Test_Stack4(t *testing.T) {
 }
 
 func Test_Stack5(t *testing.T) {
-	err := &Error{
+	err := &Exception{
 		msg: "hello",
 	}
 
@@ -131,7 +127,7 @@ func Test_Json(t *testing.T) {
 }
 
 func Test_Null(t *testing.T) {
-	var err *Error
+	var err *Exception
 	fmt.Printf("%+v\n", err)
 	fmt.Printf("%v\n", err)
 	fmt.Printf("%-v\n", err)
