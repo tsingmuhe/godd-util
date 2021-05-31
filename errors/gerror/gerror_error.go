@@ -6,50 +6,15 @@ import (
 	"io"
 )
 
-const NIL_STR = "<nil>"
-
-type Exception struct {
+type runtimeException struct {
 	msg   string
 	cause error
 	stack *stack
 }
 
-func (err *Exception) Error() string {
-	if err == nil {
-		return NIL_STR
-	}
-
-	errStr := err.msg
-	if err.cause != nil {
-		if errStr != "" {
-			errStr += ": "
-		}
-		errStr += err.cause.Error()
-	}
-	return errStr
-}
-
-func (err *Exception) Msg() string {
-	if err == nil {
-		return NIL_STR
-	}
-	return err.msg
-}
-
-func (err *Exception) Cause() error {
-	if err == nil {
-		return nil
-	}
-	return err.cause
-}
-
-func (err *Exception) Stack() string {
-	if err == nil {
-		return NIL_STR
-	}
-
+func (e *runtimeException) stackString() string {
 	var buffer = bytes.NewBuffer(nil)
-	var loop = err
+	var loop = e
 
 	buffer.WriteString(loop.msg)
 	if loop.stack != nil {
@@ -58,8 +23,8 @@ func (err *Exception) Stack() string {
 
 	for loop.cause != nil {
 		buffer.WriteString("\nCaused by: ")
-		if e, ok := loop.cause.(*Exception); ok {
-			loop = e
+		if err, ok := loop.cause.(*runtimeException); ok {
+			loop = err
 			buffer.WriteString(loop.msg)
 			if loop.stack != nil {
 				loop.stack.buffer(buffer)
@@ -73,26 +38,22 @@ func (err *Exception) Stack() string {
 	return buffer.String()
 }
 
-// Format formats the frame according to the fmt.Formatter interface.
-//
-// %v, %s   : Print all the error string;
-// %-v, %-s : Print current level error string;
-// %+v, %+s : Print full stack error list;
-func (err *Exception) Format(s fmt.State, verb rune) {
+func (e *runtimeException) Error() string {
+	return e.msg
+}
+
+func (e *runtimeException) Format(s fmt.State, verb rune) {
 	switch verb {
 	case 's', 'v':
 		switch {
-		case s.Flag('-'):
-			io.WriteString(s, err.Msg())
 		case s.Flag('+'):
-			io.WriteString(s, err.Stack())
+			io.WriteString(s, e.stackString())
 		default:
-			io.WriteString(s, err.Error())
+			io.WriteString(s, e.Error())
 		}
 	}
 }
 
-// MarshalJSON implements the interface MarshalJSON for json.Marshal.
-func (err *Exception) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + err.Error() + `"`), nil
+func (e *runtimeException) MarshalJSON() ([]byte, error) {
+	return []byte(`"` + e.Error() + `"`), nil
 }

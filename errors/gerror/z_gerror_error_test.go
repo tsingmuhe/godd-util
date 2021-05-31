@@ -25,30 +25,30 @@ func Benchmark_Newf(b *testing.B) {
 
 func Benchmark_Wrap(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		Wrap(baseError, "test")
+		WithCause(baseError, "test")
 	}
 }
 
 func Benchmark_Wrapf(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		Wrapf(baseError, "%s", "test")
+		WithCausef(baseError, "%s", "test")
 	}
 }
 
 func Benchmark_Stack(b *testing.B) {
 	err := New("1")
-	err = Wrap(err, "2")
-	err = Wrap(err, "3")
+	err = WithCause(err, "2")
+	err = WithCause(err, "3")
 
 	for i := 0; i < b.N; i++ {
-		err.Stack()
+		fmt.Sprintf("%+v", err)
 	}
 }
 
 func Benchmark_Error(b *testing.B) {
 	err := New("1")
-	err = Wrap(err, "2")
-	err = Wrap(err, "3")
+	err = WithCause(err, "2")
+	err = WithCause(err, "3")
 
 	for i := 0; i < b.N; i++ {
 		err.Error()
@@ -65,23 +65,23 @@ func Test_New(t *testing.T) {
 
 func Test_Wrap1(t *testing.T) {
 	err := errors.New("1")
-	err = Wrap(err, "2")
-	err = Wrap(err, "3")
+	err = WithCause(err, "2")
+	err = WithCause(err, "3")
 
 	fmt.Println(err.Error())
 }
 
 func Test_Wrap2(t *testing.T) {
 	err := New("1")
-	err = Wrap(err, "2")
-	err = Wrap(err, "3")
+	err = WithCause(err, "2")
+	err = WithCause(err, "3")
 
 	fmt.Println(err.Error())
 }
 
 func Test_Wrap3(t *testing.T) {
 	err := New("1")
-	err = Wrap(err, "")
+	err = WithCause(err, "")
 
 	fmt.Println(err.Error())
 }
@@ -93,8 +93,8 @@ func Test_Stack1(t *testing.T) {
 
 func Test_Stack2(t *testing.T) {
 	err := errors.New("1")
-	err = Wrap(err, "2")
-	err = Wrap(err, "3")
+	err = WithCause(err, "2")
+	err = WithCause(err, "3")
 
 	fmt.Printf("%+v\n", err)
 }
@@ -106,14 +106,14 @@ func Test_Stack3(t *testing.T) {
 
 func Test_Stack4(t *testing.T) {
 	err := New("1")
-	err = Wrap(err, "2")
-	err = Wrap(err, "3")
+	err = WithCause(err, "2")
+	err = WithCause(err, "3")
 
 	fmt.Printf("%+v\n", err)
 }
 
 func Test_Stack5(t *testing.T) {
-	err := &Exception{
+	err := &runtimeException{
 		msg: "hello",
 	}
 
@@ -121,13 +121,13 @@ func Test_Stack5(t *testing.T) {
 }
 
 func Test_Json(t *testing.T) {
-	err := Wrap(New("1"), "2")
+	err := WithCause(New("1"), "2")
 	b, _ := json.Marshal(map[string]interface{}{"error": err})
 	fmt.Println(string(b))
 }
 
 func Test_Null(t *testing.T) {
-	var err *Exception
+	var err error
 	fmt.Printf("%+v\n", err)
 	fmt.Printf("%v\n", err)
 	fmt.Printf("%-v\n", err)
@@ -138,8 +138,8 @@ func Test_Null(t *testing.T) {
 
 func Test_Cause1(t *testing.T) {
 	err := errors.New("1")
-	err = Wrap(err, "2")
-	err = Wrap(err, "3")
+	err = WithCause(err, "2")
+	err = WithCause(err, "3")
 
 	e := RootCause(err)
 	fmt.Printf("%+v\n", e)
@@ -147,8 +147,8 @@ func Test_Cause1(t *testing.T) {
 
 func Test_Cause2(t *testing.T) {
 	err := New("1")
-	err = Wrap(err, "2")
-	err = Wrap(err, "3")
+	err = WithCause(err, "2")
+	err = WithCause(err, "3")
 
 	e := RootCause(err)
 	fmt.Printf("%+v\n", e)
