@@ -13,8 +13,8 @@ func newThreadSafeSet() threadSafeSet {
 
 func (set *threadSafeSet) Size() int {
 	set.RLock()
+	defer set.RUnlock()
 	l := len(set.s)
-	set.RUnlock()
 	return l
 }
 
@@ -24,43 +24,46 @@ func (set *threadSafeSet) IsEmpty() bool {
 
 func (set *threadSafeSet) Contains(i ...interface{}) bool {
 	set.RLock()
+	defer set.RUnlock()
+
 	ret := set.s.Contains(i...)
-	set.RUnlock()
 	return ret
 }
 
 func (set *threadSafeSet) ToSlice() []interface{} {
 	keys := make([]interface{}, 0, set.Size())
 	set.RLock()
+	defer set.RUnlock()
+
 	for elem := range set.s {
 		keys = append(keys, elem)
 	}
-	set.RUnlock()
 	return keys
 }
 
 func (set *threadSafeSet) Add(i interface{}) bool {
 	set.Lock()
+	defer set.Unlock()
 	ret := set.s.Add(i)
-	set.Unlock()
 	return ret
 }
 
 func (set *threadSafeSet) Remove(i interface{}) {
 	set.Lock()
+	defer set.Unlock()
 	delete(set.s, i)
-	set.Unlock()
 }
 
 func (set *threadSafeSet) Clear() {
 	set.Lock()
+	defer set.Unlock()
 	set.s = newThreadUnsafeSet()
-	set.Unlock()
 }
 
 func (set *threadSafeSet) String() string {
 	set.RLock()
+	defer set.RUnlock()
+
 	ret := set.s.String()
-	set.RUnlock()
 	return ret
 }
